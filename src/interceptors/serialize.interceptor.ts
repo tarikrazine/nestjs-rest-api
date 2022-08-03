@@ -24,12 +24,12 @@ export class SerializeInterceptor implements NestInterceptor {
     next: CallHandler<any>,
   ): Observable<any> | Promise<Observable<any>> {
     // Run Some Code Before The Request
-    console.log('Before Request', context);
+    //console.log('Before Request', context);
 
     // Run Some Code After The Request
     return next.handle().pipe(
       map((data) => {
-        console.log('After Request', data);
+        //console.log('After Request', data);
         return plainToClass(this.dto, data, {
           excludeExtraneousValues: true,
         });

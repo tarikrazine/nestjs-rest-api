@@ -10,18 +10,28 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { Serialize } from 'src/interceptors/serialize.interceptor';
+import { AuthService } from './auth.service';
 import { CreateUserDto } from './dtos/createUser.dto';
+import { LoginUserDto } from './dtos/loginUser.dto';
 import { UserDto } from './dtos/user.dto';
 import { UsersService } from './users.service';
 
 @Controller('auth')
 @Serialize(UserDto)
 export class UsersController {
-  constructor(private usersService: UsersService) {}
+  constructor(
+    private usersService: UsersService,
+    private authService: AuthService,
+  ) {}
 
   @Post('/signup')
   signup(@Body() body: CreateUserDto) {
-    this.usersService.create(body);
+    return this.authService.signup(body);
+  }
+
+  @Post('/signin')
+  signin(@Body() body: LoginUserDto) {
+    return this.authService.signin(body);
   }
 
   @Get('/:id')
