@@ -8,6 +8,7 @@ import {
   Post,
   Query,
   NotFoundException,
+  Session,
 } from '@nestjs/common';
 import { Serialize } from 'src/interceptors/serialize.interceptor';
 import { AuthService } from './auth.service';
@@ -24,14 +25,38 @@ export class UsersController {
     private authService: AuthService,
   ) {}
 
+  @Get('/me')
+  async me(@Session() session: any) {
+    const user = await this.usersService.findOne(session.userId);
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    return user;
+  }
+
   @Post('/signup')
-  signup(@Body() body: CreateUserDto) {
-    return this.authService.signup(body);
+  async signup(@Body() body: CreateUserDto, @Session() session: any) {
+    const user = await this.authService.signup(body);
+
+    session.userId = user.id;
+
+    return user;
   }
 
   @Post('/signin')
-  signin(@Body() body: LoginUserDto) {
-    return this.authService.signin(body);
+  async signin(@Body() body: LoginUserDto, @Session() session: any) {
+    const user = await this.authService.signin(body);
+
+    session.userId = user.id;
+
+    return user;
+  }
+
+  @Post('/signout')
+  async signout(@Session() session: any) {
+    session.userId = null;
   }
 
   @Get('/:id')
