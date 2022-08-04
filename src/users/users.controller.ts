@@ -9,12 +9,17 @@ import {
   Query,
   NotFoundException,
   Session,
+  UseGuards,
 } from '@nestjs/common';
+
 import { Serialize } from 'src/interceptors/serialize.interceptor';
 import { AuthService } from './auth.service';
+import { CurrentUser } from './decorators/currentUser.decorators';
 import { CreateUserDto } from './dtos/createUser.dto';
 import { LoginUserDto } from './dtos/loginUser.dto';
 import { UserDto } from './dtos/user.dto';
+import { AuthGuard } from './guards/auth.guard';
+import { User } from './users.entity';
 import { UsersService } from './users.service';
 
 @Controller('auth')
@@ -26,13 +31,8 @@ export class UsersController {
   ) {}
 
   @Get('/me')
-  async me(@Session() session: any) {
-    const user = await this.usersService.findOne(session.userId);
-
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
-
+  @UseGuards(AuthGuard)
+  async me(@CurrentUser() user: User) {
     return user;
   }
 
